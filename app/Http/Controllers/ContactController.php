@@ -11,10 +11,7 @@ use Illuminate\Support\Facades\Auth;
  * @OA\Info(
  *     version="1.0.0",
  *     title="Laravel Contact API Documentation",
- *     description="API Documentation untuk Contact dan Address",
- *     @OA\Contact(
- *         email="your-email@example.com"
- *     )
+ *     description="API Documentation untuk Contact dan Address"
  * )
  * 
  * @OA\Server(
@@ -31,15 +28,15 @@ use Illuminate\Support\Facades\Auth;
 
 class ContactController extends Controller
 {
-        /**
+    /**
      * @OA\Get(
      *     path="/contacts",
-     *     summary="Mengambil daftar semua kontak",
+     *     summary="Mendapatkan semua kontak",
      *     tags={"Contacts"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
-     *         description="Daftar kontak berhasil diambil",
+     *         description="Successful operation",
      *         @OA\JsonContent(
      *             @OA\Property(property="data", type="array",
      *                 @OA\Items(ref="#/components/schemas/Contact")
@@ -49,7 +46,6 @@ class ContactController extends Controller
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
-
     public function index(): JsonResponse
     {
         $contacts = Auth::user()->contacts()->with('addresses')->get();
@@ -58,7 +54,7 @@ class ContactController extends Controller
         ]);
     }
 
-        /**
+    /**
      * @OA\Post(
      *     path="/contacts",
      *     summary="Membuat kontak baru",
@@ -76,16 +72,15 @@ class ContactController extends Controller
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="Kontak berhasil dibuat",
+     *         description="Contact created successfully",
      *         @OA\JsonContent(
      *             @OA\Property(property="data", ref="#/components/schemas/Contact")
      *         )
      *     ),
-     *     @OA\Response(response=400, description="Validasi gagal"),
+     *     @OA\Response(response=400, description="Validation error"),
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
-    
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -102,6 +97,30 @@ class ContactController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/contacts/{contact}",
+     *     summary="Mendapatkan detail kontak",
+     *     tags={"Contacts"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="contact",
+     *         in="path",
+     *         required=true,
+     *         description="ID kontak",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Successful operation",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="data", ref="#/components/schemas/Contact")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Contact not found")
+     * )
+     */
     public function show(Contact $contact): JsonResponse
     {
         if ($contact->user_id !== Auth::id()) {
@@ -113,6 +132,37 @@ class ContactController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/contacts/{contact}",
+     *     summary="Mengupdate kontak",
+     *     tags={"Contacts"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="contact",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             @OA\Property(property="first_name", type="string"),
+     *             @OA\Property(property="last_name", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="phone", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Contact updated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="data", ref="#/components/schemas/Contact")
+     *         )
+     *     ),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Contact not found")
+     * )
+     */
     public function update(Request $request, Contact $contact): JsonResponse
     {
         if ($contact->user_id !== Auth::id()) {
@@ -133,6 +183,26 @@ class ContactController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/contacts/{contact}",
+     *     summary="Menghapus kontak",
+     *     tags={"Contacts"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="contact",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=204,
+     *         description="Contact deleted successfully"
+     *     ),
+     *     @OA\Response(response=403, description="Forbidden"),
+     *     @OA\Response(response=404, description="Contact not found")
+     * )
+     */
     public function destroy(Contact $contact): JsonResponse
     {
         if ($contact->user_id !== Auth::id()) {
