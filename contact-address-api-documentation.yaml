@@ -1,0 +1,422 @@
+openapi: 3.0.0
+info:
+  title: Contact & Address API
+  description: API untuk manajemen Contact dan Address
+  version: 1.0.0
+  contact:
+    email: your-email@example.com
+
+servers:
+  - url: http://localhost:8000/api
+    description: Development Server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    Contact:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        first_name:
+          type: string
+          example: "John"
+        last_name:
+          type: string
+          example: "Doe"
+        email:
+          type: string
+          format: email
+          example: "john.doe@example.com"
+        phone:
+          type: string
+          example: "081234567890"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+
+    Address:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        contact_id:
+          type: integer
+          example: 1
+        street:
+          type: string
+          example: "Jalan Sudirman No. 123"
+        city:
+          type: string
+          example: "Jakarta"
+        province:
+          type: string
+          example: "DKI Jakarta"
+        country:
+          type: string
+          example: "Indonesia"
+        postal_code:
+          type: string
+          example: "12345"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+paths:
+  /contacts:
+    get:
+      tags:
+        - Contacts
+      summary: Mengambil daftar semua kontak
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Daftar kontak berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+        '401':
+          description: Unauthorized - Token tidak valid
+    
+    post:
+      tags:
+        - Contacts
+      summary: Membuat kontak baru
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - first_name
+                - last_name
+                - email
+                - phone
+              properties:
+                first_name:
+                  type: string
+                  example: "John"
+                last_name:
+                  type: string
+                  example: "Doe"
+                email:
+                  type: string
+                  format: email
+                  example: "john.doe@example.com"
+                phone:
+                  type: string
+                  example: "081234567890"
+      responses:
+        '201':
+          description: Kontak berhasil dibuat
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Contact'
+        '400':
+          description: Validasi gagal
+        '401':
+          description: Unauthorized
+
+  /contacts/{id}:
+    get:
+      tags:
+        - Contacts
+      summary: Mengambil detail kontak
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detail kontak berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Contact'
+        '403':
+          description: Forbidden - Bukan pemilik kontak
+        '404':
+          description: Kontak tidak ditemukan
+
+    put:
+      tags:
+        - Contacts
+      summary: Mengupdate kontak
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+      responses:
+        '200':
+          description: Kontak berhasil diupdate
+        '403':
+          description: Forbidden - Bukan pemilik kontak
+        '404':
+          description: Kontak tidak ditemukan
+
+    delete:
+      tags:
+        - Contacts
+      summary: Menghapus kontak
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Kontak berhasil dihapus
+        '403':
+          description: Forbidden - Bukan pemilik kontak
+        '404':
+          description: Kontak tidak ditemukan
+
+  /contacts/{contactId}/addresses:
+    get:
+      tags:
+        - Addresses
+      summary: Mengambil semua alamat untuk kontak tertentu
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Daftar alamat berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Address'
+        '403':
+          description: Forbidden - Bukan pemilik kontak
+        '404':
+          description: Kontak tidak ditemukan
+
+    post:
+      tags:
+        - Addresses
+      summary: Menambah alamat baru untuk kontak
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - street
+                - city
+                - province
+                - country
+                - postal_code
+              properties:
+                street:
+                  type: string
+                  example: "Jalan Sudirman No. 123"
+                city:
+                  type: string
+                  example: "Jakarta"
+                province:
+                  type: string
+                  example: "DKI Jakarta"
+                country:
+                  type: string
+                  example: "Indonesia"
+                postal_code:
+                  type: string
+                  example: "12345"
+      responses:
+        '201':
+          description: Alamat berhasil ditambahkan
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Address'
+        '400':
+          description: Validasi gagal
+        '403':
+          description: Forbidden - Bukan pemilik kontak
+        '404':
+          description: Kontak tidak ditemukan
+
+  /contacts/{contactId}/addresses/{addressId}:
+    get:
+      tags:
+        - Addresses
+      summary: Mengambil detail alamat
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detail alamat berhasil diambil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Address'
+        '403':
+          description: Forbidden - Bukan pemilik kontak
+        '404':
+          description: Alamat tidak ditemukan
+
+    put:
+      tags:
+        - Addresses
+      summary: Mengupdate alamat
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                street:
+                  type: string
+                city:
+                  type: string
+                province:
+                  type: string
+                country:
+                  type: string
+                postal_code:
+                  type: string
+      responses:
+        '200':
+          description: Alamat berhasil diupdate
+        '403':
+          description: Forbidden - Bukan pemilik kontak
+        '404':
+          description: Alamat tidak ditemukan
+
+    delete:
+      tags:
+        - Addresses
+      summary: Menghapus alamat
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Alamat berhasil dihapus
+        '403':
+          description: Forbidden - Bukan pemilik kontak
+        '404':
+          description: Alamat tidak ditemukan
