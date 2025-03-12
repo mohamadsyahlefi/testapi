@@ -7,6 +7,29 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 <br><br><br>
+## Biodata
+
+Nama: Mohamad Syahlefi Ghoni Al Maghfur <br>
+NIM: 23091397117 <br>
+Kelas: 2023D <br>
+Prodi: D4 Manajemen Informatika <br>
+Matkul: Pemrograman API <br><br>
+
+Step by step intalasi:
+- clone url link repository dan buka file pada IDE (VSCode)
+- buka laragon dan buat database dengan nama "testapi"
+- buka terminal VSCode pada file yang telah dibuka tadi dan ketikkan "php artisan migrate"
+- Testing API bisa dengan dua cara (online, dengan copaste code pada file "contact-address-api-documentation.yaml" dan drop pada swagger editor atau dengan package "darkaonline/l5-swagger"
+- Jika menggunakan package, pada terminal ketikkan "composer require "darkaonline/l5-swagger"" untuk menginstall via composer
+- Lalu ketikkan "php artisan vendor:publish --provider "L5Swagger\L5SwaggerServiceProvider"" untuk publish konfigurasi dan view
+- Konfigurasi berada pada file ContactController.php, Contact.php, Address.php yang bertulisan awalan "@OA\..."
+- lalu generate dengan mengetikkan "php artisan l5-swagger:generate"
+- jalankan laravel dengan mengetikkan "php artisan serve" dan akses link "http://localhost:8000/api/documentation"
+- Untuk testing API melalui Swagger:
+- Klik tombol "Authorize" (ikon gembok)
+- Masukkan token dengan format: your-token-here (tanpa 'Bearer') Klik "Authorize"
+
+<br><br><br>
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
